@@ -1,0 +1,23 @@
+设置 编译链gcc的路径为环境便令
+export PATH=$PATH:/opt/ql_crosstools/ql-ag550qcn-le20-gcc820-v1-toolchain/gcc/usr/bin/arm-oe-linux/
+
+
+
+./configure --host=arm-oe-linux 
+CFLAGS='-march=armv7-a -marm -mfpu=neon -mfloat-abi=hard --sysroot=/xxx/ql-ol-sdk/ql-ol-extsdk/ql-sysroots -I. -I/xxx/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/include -I/xxx/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include -I/xxx/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql_lib_utils -I/xxx/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql-sdk  -Wall -Wundef -finline-functions -finline-limit=64' 
+CXXFLAGS='-march=armv7-a -marm -mfpu=neon -mfloat-abi=hard --sysroot=/xxx/ql-ol-sdk/ql-ol-extsdk/ql-sysroots -I. -I/xxx/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/include -I/xxx/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include -I/xxx/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql_lib_utils -I/xxx/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql-sdk  -Wall -Wundef -finline-functions -finline-limit=64' 
+
+
+
+在3.61版本会遇到如下编译错误
+
+/bin/bash ../libtool  --tag=CXX   --mode=link arm-oe-linux-g++ -pthread -DHAVE_PTHREAD=1 -DHAVE_ZLIB=1 -Wall -Wno-sign-compare  -march=armv7-a -marm -mfpu=neon -mfloat-abi=hard --sysroot=/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots -I. -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/include -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql_lib_utils -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql-sdk  -Wall -Wundef -finline-functions -finline-limit=64 -pthread  -o protoc google/protobuf/compiler/main.o  libprotobuf.la libprotoc.la -lz 
+libtool: link: arm-oe-linux-g++ -pthread -DHAVE_PTHREAD=1 -DHAVE_ZLIB=1 -Wall -Wno-sign-compare -march=armv7-a -marm -mfpu=neon -mfloat-abi=hard --sysroot=/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots -I. -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/include -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql_lib_utils -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql-sdk -Wall -Wundef -finline-functions -finline-limit=64 -pthread -o .libs/protoc google/protobuf/compiler/main.o  ./.libs/libprotobuf.so ./.libs/libprotoc.so -lz -pthread
+./.libs/libprotoc.so: error: undefined reference to 'scc_info_FileDescriptorProto_google_2fprotobuf_2fdescriptor_2eproto'
+
+
+解决方法，cd src目录
+执行如下命令，实际上就是在命令后面加上编译./google/protobuf/.libs/descriptor.pb.o
+
+xxx/ql-ol-sdk/ql-ol-extsdk/protobuf/src$ /bin/bash ../libtool  --tag=CXX   --mode=link arm-oe-linux-g++ -pthread -DHAVE_PTHREAD=1 -DHAVE_ZLIB=1 -Wall -Wno-sign-compare  -march=armv7-a -marm -mfpu=neon -mfloat-abi=hard --sysroot=/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots -I. -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/include -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql_lib_utils -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql-sdk  -Wall -Wundef -finline-functions -finline-limit=64 -pthread  -o protoc google/protobuf/compiler/main.o  libprotobuf.la libprotoc.la ./google/protobuf/.libs/descriptor.pb.o  -lz
+libtool: link: arm-oe-linux-g++ -pthread -DHAVE_PTHREAD=1 -DHAVE_ZLIB=1 -Wall -Wno-sign-compare -march=armv7-a -marm -mfpu=neon -mfloat-abi=hard --sysroot=/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots -I. -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/include -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql_lib_utils -I/home/lichengcheng/workspace_gitlab/kaido3.0/ag550/ql-ol-sdk/ql-ol-extsdk/ql-sysroots/usr/include/ql-sdk -Wall -Wundef -finline-functions -finline-limit=64 -pthread -o .libs/protoc google/protobuf/compiler/main.o ./google/protobuf/.libs/descriptor.pb.o  ./.libs/libprotobuf.so ./.libs/libprotoc.so -lz -pthread
